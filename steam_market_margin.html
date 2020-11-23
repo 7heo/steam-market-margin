@@ -1,0 +1,277 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+  
+  <style>
+    body {
+      background-color: #fdf6e3;
+	  font-family: sans-serif;
+    }
+	
+	#canvas-container {
+      width: 100%;
+	  text-align:center;
+	  position: absolute;
+	  left: 0;
+	}
+	
+	#y_text {
+	  width: 100px;
+	  position: absolute;
+	  top: 50%;
+	  left: 2.5%;
+	}
+	
+	#x_text {
+	  width: 120px;
+	  position: absolute;
+	  bottom: -2.5%;
+	  left: 50%;
+	}
+	
+	h1 {
+	  text-align: center;
+	  border-bottom: 2px dotted black;
+	  margin: 1em 5ex 2em;
+	}
+
+    table, tr, th, td {
+	  border: 1px solid gray;
+	  border-collapse: collapse;
+	}
+	
+	table {
+	  width: 75%;
+	  margin: auto;
+	  margin-bottom: 3em;
+	}
+	
+	th {
+	  text-align: right;
+	  background-color: lightgray;
+	}
+	
+	td, th {
+	  padding: 1ex 1em;
+	}
+	
+	tr:nth-child(even) {background: #eee8d5}
+	tr:nth-child(odd) {background: #fdf6e3}
+	
+	tr.increase:nth-child(even) { background-color: #dc322f; }
+	tr.increase:nth-child(odd) { background-color: #cb4b16; }
+  </style>
+
+  <script>
+    var MAX_MARGIN = 200;
+	var canvas_margin_left = 60;
+	var canvas_margin_bottom = 40;
+	
+    function withtwodecimals(number) {
+	  return number;
+	}
+	
+	function addrow(p, g, m, s)
+	{
+	    var row = document.createElement("TR");
+		if (s != 0) row.classList.add('increase');
+		//console.log("Price: " + p + ", gains: " + m + ", Steam margin: " + s);
+		row.innerHTML = "<td>" + p.toFixed(2) + "</td><td>" + g.toFixed(2) + "</td><td>" + m.toFixed(2) + "%</td>";
+        document.getElementById("table").appendChild(row);
+	}
+	
+	function draw_axes(graph, max_price)
+	{
+	  g_context = graph.getContext("2d");
+	  g_top = 0;
+	  g_left = canvas_margin_left;
+	  g_right = graph.width;
+	  g_bottom = graph.height - canvas_margin_bottom;
+	  sections_y = 16;
+	  sections_x = 40;
+	  subsections_x = 320; // Max unlabelled graduations (point at which more would be blurred)
+	  
+	  if(subsections_x > max_price) subsections_x = max_price;
+	  
+	  g_context.font = "14px Arial";
+	  
+	  // Draw the left axis
+	  g_context.beginPath();
+	  g_context.strokeStyle = "#000000";
+	  g_context.moveTo(g_left - 5,  g_top);
+	  g_context.lineTo(g_left, g_top);
+      g_context.fillText(MAX_MARGIN + "%", 0, g_top + 10);
+	  for(var i = 1; i <= sections_y; i++)
+	  {
+	    g_context.fillText( (MAX_MARGIN - (MAX_MARGIN / sections_y * i )) + "%", 0, g_top + (((g_bottom - g_top) / sections_y) * i) + 5);
+	    g_context.lineTo(g_left, g_top + (((g_bottom - g_top) / sections_y) * i));
+        g_context.moveTo(g_left - 5, g_top + (((g_bottom - g_top) / sections_y) * i));
+	    g_context.lineTo(g_left, g_top + (((g_bottom - g_top) / sections_y) * i));
+      }
+      g_context.stroke();
+      g_context.closePath();
+	  
+	  // Draw the horizontal grid
+	  g_context.beginPath();
+	  g_context.strokeStyle = "#AAAAAA";
+	  for(var i = 0; i < sections_y; i++)
+	  {
+        g_context.moveTo(g_left, g_top + (((g_bottom - g_top) / sections_y) * i));
+	    g_context.lineTo(g_right, g_top + (((g_bottom - g_top) / sections_y) * i));
+      }
+      g_context.stroke();
+      g_context.closePath();
+
+	  // Draw the bottom axis
+	  g_context.beginPath();
+	  g_context.strokeStyle = "#000000";
+	  g_context.moveTo(g_left, g_bottom + 5);
+	  g_context.lineTo(g_left, g_bottom);
+	  g_context.fillText(0, g_left - 5, g_bottom + 20);
+	  for(var i = 1; i <= sections_x; i++)
+	  {
+	    g_context.lineTo(g_left + (((g_right - g_left) / sections_x) * i), g_bottom);
+        g_context.moveTo(g_left + (((g_right - g_left) / sections_x) * i), g_bottom + 5);
+	    g_context.lineTo(g_left + (((g_right - g_left) / sections_x) * i), g_bottom);
+		g_context.fillText((max_price/100/sections_x * i).toFixed(2), g_left + (((g_right - g_left) / sections_x) * i) - 12, g_bottom + (10 * (i % 2 + 2)));
+      }
+      g_context.stroke();
+      g_context.closePath();
+	  
+	  // Draw the bottom subsections
+	  g_context.beginPath();
+	  g_context.moveTo(g_left, g_bottom + 3);
+	  g_context.lineTo(g_left, g_bottom);
+	  for(var i = 1; i <= subsections_x; i++)
+	  {
+	    g_context.lineTo(g_left + (((g_right - g_left) / subsections_x) * i), g_bottom);
+        g_context.moveTo(g_left + (((g_right - g_left) / subsections_x) * i), g_bottom + 3);
+	    g_context.lineTo(g_left + (((g_right - g_left) / subsections_x) * i), g_bottom);
+      }
+      g_context.stroke();
+      g_context.closePath();
+
+	  // Draw the vertical grid
+	  g_context.beginPath();
+	  g_context.strokeStyle = "#AAAAAA";
+	  for(var i = 0; i < sections_x; i++)
+	  {
+        g_context.moveTo(g_right - (((g_right - g_left) / sections_x) * i), g_top);
+	    g_context.lineTo(g_right - (((g_right - g_left) / sections_x) * i), g_bottom);
+      }
+      g_context.stroke();
+      g_context.closePath();
+
+	  g_context.strokeStyle = "#000000";
+	}
+	
+	function addplot(x, y)
+	{
+	  if(document.getElementById("graph").getContext("2d").strokeStyle == '#000000')
+	  {
+	    document.getElementById("graph").getContext("2d").strokeStyle = "#268bd2";
+	    document.getElementById("graph").getContext("2d").beginPath();
+	    document.getElementById("graph").getContext("2d").moveTo(x + canvas_margin_left, y);
+	  }
+	  else
+	  {
+	    document.getElementById("graph").getContext("2d").lineTo(x + canvas_margin_left, y);
+	    document.getElementById("graph").getContext("2d").stroke();
+	  }
+	}
+	
+	function setup_document(out_type, max_price)
+	{
+	  var body = document.getElementsByTagName("body")[0];
+	  body.innerHTML = "<h1>Steam market margin</h1>";
+	  switch(out_type)
+	  {
+	    case "table":
+          body.innerHTML += '<table id="table"><tr><th>Price paid</th><th>Money received</th><th>Steam&#39;s margin</th></tr></table>';
+		  break;
+		case "graph":
+		  body.innerHTML += '<div id="canvas-container"><div id="y_text">Margin in % of the selling price</div><div id="x_text">Selling price (&euro;)</div><canvas id="graph" style="margin: auto"></canvas></div>';
+		  document.getElementById("graph").width = (window.innerWidth * .8);
+		  document.getElementById("graph").height = (window.innerHeight * .8);
+		  draw_axes(document.getElementById("graph"), max_price);
+		  break;
+	  }
+	}
+	
+	function compute(out_type, max_price, last)
+	{	  
+	  var gains_c = -1;
+	  var skip_inc = 0;
+	  var disp_warn = 0;
+
+	  for(var price_c = 1; price_c <= max_price; price_c++)
+	  {
+	    price = price_c / 100;
+		gains = gains_c / 100;
+		margin = (price - gains) * 100 / price;
+		
+		switch(out_type)
+		{
+		case "table":
+		  if(last == 0 || max_price - price_c < last) addrow(price, gains, margin, disp_warn);
+		  break;
+		case "graph":
+		  x = price / max_price * 100 * (document.getElementById("graph").width - canvas_margin_left);
+		  y = (MAX_MARGIN - margin)/ MAX_MARGIN * (document.getElementById("graph").height - canvas_margin_bottom);
+		  if(last == 0 || max_price - price_c < last) ; // TODO: Implement me
+		  addplot(x, y);
+		}
+
+		if(skip_inc == 0)
+		{
+          gains_c += 1;
+		  if(gains_c > 10 && gains_c % 10 == 9) skip_inc = (Math.floor(gains_c/10)%2) + 1;
+		  if(gains_c == 19) skip_inc = 1;
+		  disp_warn = 0;
+		}
+		else
+		{
+		  skip_inc--;
+		  disp_warn = 1;
+		}
+      }
+	}
+  
+    function main() {
+	  out_type = "table";
+	  max_price = 1000;
+	  last = 0;
+	  argv = window.location.hash.replace(/^#+/,"").split(',');
+	  switch(argv[0])
+	  {
+	  case "table":
+	  case "graph":
+	    out_type = argv[0];
+		break;
+	  }
+	  
+	  if(Math.floor(Number(argv[1])).toString() === argv[1]) max_price = argv[1];
+	  
+	  if(Math.floor(Number(argv[2])).toString() === argv[2]) last = argv[2];
+	  
+      setup_document(out_type, max_price);
+	  compute(out_type, max_price, last);
+	}
+  </script>
+
+</head>
+
+<body>
+</body>
+<script>
+  window.addEventListener('hashchange', function(){
+	main();
+  })
+  
+  main();
+</script>
+</html>
