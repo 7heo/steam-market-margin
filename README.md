@@ -10,4 +10,10 @@ The parameters are positional.
 
 1. The first one is either `table` or `graph`.
 1. The second one is the number of datapoints to compute.
-1. The third one is the number of datapoints to display, used to display the `N`th **last** datapoints. *N.B: This feature is currently only implemented with the table output.*
+1. The third one is the number of datapoints to display, used to display the `N`th **last** datapoints.  
+  *N.B: This feature is currently only implemented with the table output.*
+
+## Examples
+
+- [https://7heo.github.io/steam-market-margin/#table,50,30](https://7heo.github.io/steam-market-margin/#table,50,30).
+- [https://7heo.github.io/steam-market-margin/#graph,160](https://7heo.github.io/steam-market-margin/#graph,160).
