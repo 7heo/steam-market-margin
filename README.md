@@ -17,3 +17,7 @@ The parameters are positional.
 
 - [https://7heo.github.io/steam-market-margin/#table,50,30](https://7heo.github.io/steam-market-margin/#table,50,30).
 - [https://7heo.github.io/steam-market-margin/#graph,160](https://7heo.github.io/steam-market-margin/#graph,160).
+
+## Notes
+
+The table output colors the increasing margin rows in red.
