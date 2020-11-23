@@ -4,7 +4,7 @@ Visit the repository's page at [https://7heo.github.io/steam-market-margin/](htt
 
 ## How to use
 
-You can pass parameters to the script by adding them in the URL after a # (hash).
+You can pass parameters to the script by adding them in the URL after a `#` (hash).
 
 The parameters are positional.
 
